@@ -1,5 +1,4 @@
-require 'spec_helper'
-require "#{Rails.root}/daemons/common/aws_resource"
+require "common/aws_resource"
 
 describe AWSResource do
   context "#find_server_by_id" do

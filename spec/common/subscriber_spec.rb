@@ -1,5 +1,4 @@
-require "spec_helper"
-require "#{Rails.root}/daemons/common/subscriber"
+require "common/subscriber"
 
 describe Daemons::Subscriber do
   let(:processor) { double }

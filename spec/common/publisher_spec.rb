@@ -1,5 +1,4 @@
-require 'spec_helper'
-require_relative "#{Rails.root}/daemons/common/publisher"
+require "common/publisher"
 
 describe Publisher do
   let(:topic_name) { "test" }
