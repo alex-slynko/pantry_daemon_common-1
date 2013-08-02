@@ -1,29 +1,26 @@
 # PantryDaemonCommon
 
-TODO: Write a gem description
+Common daemons stuff.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'pantry_daemon_common'
+    gem 'pantry_daemon_common', git: 'git@github.com:QuickbridgeLtd/pantry_daemon_common.git'
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install pantry_daemon_common
-
 ## Usage
 
-TODO: Write usage instructions here
+require 'pantry_daemon_common/publisher' to use simple publisher.  
 
 ## Contributing
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+4. Run tests (`bundle exec rake`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request
