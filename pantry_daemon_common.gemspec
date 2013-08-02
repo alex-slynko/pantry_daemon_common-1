@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = PantryDaemonCommon::VERSION
   spec.authors       = ["Alex Slynko"]
   spec.email         = ["pantry@wonga.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Provides the basic infrastrucutre needed for hosting and running a daemon}
+  spec.summary       = %q{Daemon basic infrastructure}
   spec.homepage      = ""
   spec.license       = "MIT"
 
