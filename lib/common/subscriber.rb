@@ -7,7 +7,7 @@ module Daemons
       AWS::SQS.new.queues.named(queue_name).poll do |msg|
         begin
           message = JSON.parse(msg.body)
-          message = JSON.parse(message["message"]) if message["message"]
+          message = JSON.parse(message["Message"]) if message["Message"]
           processor.handle_message(message)
         rescue JSON::ParserError => e
           false
