@@ -3,7 +3,6 @@ require 'singleton'
 
 module Daemons
   class Config
-    #include Singleton
     def initialize(config_file)
       read_config(config_file)
       configure_aws
@@ -11,6 +10,15 @@ module Daemons
 
     def [](value)
       @config[value]
+    end
+
+    def daemon_config
+    {
+      backtrace: @config['daemon']['backtrace'],
+      dir_mode: @config['daemon']['dir_mode'].to_sym,
+      dir: "#{File.expand_path(@config['daemon']['dir'])}",
+      monitor: @config['daemon']['monitor']
+    }
     end
 
     private
@@ -23,9 +31,5 @@ module Daemons
       AWS.config(@config["aws"])
     end
   end
-
-  #def self.config(config_file)
-  #  Config.instance(config_file)
-  #end
 end
 

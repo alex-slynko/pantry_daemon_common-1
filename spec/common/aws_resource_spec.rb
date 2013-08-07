@@ -1,3 +1,4 @@
+require 'spec_helper'
 require "common/aws_resource"
 
 describe AWSResource do

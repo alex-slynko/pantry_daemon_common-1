@@ -1,8 +1,9 @@
+require 'spec_helper'
 require "common/publisher"
 
 describe Publisher do
   let(:topic_name) { "test" }
-  subject { Publisher.new(topic_name) }
+  subject { Publisher.new(topic_name, double.as_null_object) }
 
   context "#publish" do
     let(:message) { { test: :test } }

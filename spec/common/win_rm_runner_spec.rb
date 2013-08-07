@@ -1,3 +1,4 @@
+require 'spec_helper'
 require "common/win_rm_runner"
 
 describe WinRMRunner do

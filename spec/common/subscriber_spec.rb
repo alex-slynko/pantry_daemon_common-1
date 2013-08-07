@@ -1,7 +1,11 @@
+require 'spec/helper'
 require 'json'
 require "common/subscriber"
+require 'logger'
 
-describe Daemons::Subscriber do
+describe Daemon::Subscriber do
+  subject { Daemon::Subscriber.new(instance_double('Logger').as_null_object) }
+
   let(:processor) { double }
   let(:queue_name) { "test_queue" }
   let(:message) { {'test' => 'test'} }
