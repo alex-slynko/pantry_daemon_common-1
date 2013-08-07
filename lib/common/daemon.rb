@@ -3,6 +3,7 @@ require 'common/subscriber'
 require 'common/publisher'
 require 'common/config'
 require 'logger'
+require 'syslogger'
 
 module Daemon
   class << self
@@ -30,7 +31,18 @@ module Daemon
     end
 
     def logger
-      @logger ||= Logger.new("log/#{config['daemon']['app_name']}.log', 'daily")
+      @logger ||= initialize_logger
+    end
+
+    private
+    def initialize_logger
+      log_config = config['daemon']['log']
+      if log_config['logger'] == 'file'
+      Logger.new(log_config['log_file'], log_config['shift_age'])
+      elsif log_config['logger'] == 'syslog'
+        facility = Syslog.const_get("LOG_#{log_config['log_facility'].upcase}")
+        Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
+      end
     end
   end
 end
