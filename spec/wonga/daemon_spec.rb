@@ -22,6 +22,11 @@ describe Wonga::Daemon do
   context ".logger" do
     let(:config) { { 'daemon' => { 'log' => logger_config, "app_name" => app_name } } }
     let(:app_name) { 'test' }
+    let(:logger) { double }
+
+    before(:each) do
+      Wonga::Daemon.instance_variable_set(:@logger, nil)
+    end
 
     context "when logger type in config is file" do
       let(:file_name) { 'log.log' }
@@ -35,8 +40,8 @@ describe Wonga::Daemon do
       }
 
       it "creates regular logger" do
-        expect(Logger).to receive(:new).with(file_name, shift_age)
-        Wonga::Daemon.logger
+        expect(Logger).to receive(:new).with(file_name, shift_age).and_return(logger)
+        expect(Wonga::Daemon.logger).to eql(logger)
       end
     end
 
@@ -49,8 +54,8 @@ describe Wonga::Daemon do
       }
 
       it "creates syslogger" do
-        expect(Syslogger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON)
-        Wonga::Daemon.logger
+        expect(Syslogger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
+        expect(Wonga::Daemon.logger).to eql(logger)
       end
     end
   end
