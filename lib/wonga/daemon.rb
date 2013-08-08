@@ -45,7 +45,7 @@ module Wonga
             Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
           end
         end
-        logger ||= Logger.new(STDOUT)
+        logger || Logger.new(STDOUT)
       end
     end
   end
