@@ -1,5 +1,5 @@
 require "pantry_daemon_common/version"
+require 'wonga/daemon'
 
 module PantryDaemonCommon
-  # Your code goes here...
 end

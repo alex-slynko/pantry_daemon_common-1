@@ -1,6 +1,7 @@
-require "common/win_rm_runner"
+require 'spec_helper'
+require "wonga/daemon/win_rm_runner"
 
-describe WinRMRunner do
+describe Wonga::Daemon::WinRMRunner do
   let(:server) { double }
   before(:each) { EventMachine::WinRM::Session.stub(:new).and_return(server) }
 
