@@ -1,7 +1,7 @@
 require 'spec_helper'
-require "common/aws_resource"
+require "wonga/daemon/aws_resource"
 
-describe AWSResource do
+describe Wonga::Daemon::AWSResource do
   context "#find_server_by_id" do
     it "finds server" do
       server = double

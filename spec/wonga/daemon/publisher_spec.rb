@@ -1,9 +1,9 @@
 require 'spec_helper'
-require "common/publisher"
+require "wonga/daemon/publisher"
 
-describe Publisher do
+describe Wonga::Daemon::Publisher do
   let(:topic_name) { "test" }
-  subject { Publisher.new(topic_name, double.as_null_object) }
+  subject { Wonga::Daemon::Publisher.new(topic_name, double.as_null_object) }
 
   context "#publish" do
     let(:message) { { test: :test } }

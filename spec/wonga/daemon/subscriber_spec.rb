@@ -1,10 +1,10 @@
 require 'spec_helper'
 require 'json'
-require "common/subscriber"
+require "wonga/daemon/subscriber"
 require 'logger'
 
-describe Daemon::Subscriber do
-  subject { Daemon::Subscriber.new(instance_double('Logger').as_null_object) }
+describe Wonga::Daemon::Subscriber do
+  subject { Wonga::Daemon::Subscriber.new(instance_double('Logger').as_null_object) }
 
   let(:processor) { double }
   let(:queue_name) { "test_queue" }

@@ -1,10 +1,9 @@
 require 'spec_helper'
-require 'common/daemon'
-require 'common/publisher'
+require 'wonga/daemon'
 
-describe Daemon do
+describe Wonga::Daemon do
   before(:each) do
-    Daemon.stub(:config).and_return(config)
+    Wonga::Daemon.stub(:config).and_return(config)
   end
 
   context ".publisher" do
@@ -14,9 +13,9 @@ describe Daemon do
     let(:config) { { 'sns' => { 'topic_arn' => publish_arn }} }
 
     it "creates publisher using config" do
-      Daemon.stub(:logger).and_return(logger)
-      expect(Publisher).to receive(:new).with(publish_arn, logger).and_return(publisher)
-      expect(Daemon.publisher).to eql(publisher)
+      Wonga::Daemon.stub(:logger).and_return(logger)
+      expect(Wonga::Daemon::Publisher).to receive(:new).with(publish_arn, logger).and_return(publisher)
+      expect(Wonga::Daemon.publisher).to eql(publisher)
     end
   end
 
@@ -37,7 +36,7 @@ describe Daemon do
 
       it "creates regular logger" do
         expect(Logger).to receive(:new).with(file_name, shift_age)
-        Daemon.logger
+        Wonga::Daemon.logger
       end
     end
 
@@ -51,7 +50,7 @@ describe Daemon do
 
       it "creates syslogger" do
         expect(Syslogger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON)
-        Daemon.logger
+        Wonga::Daemon.logger
       end
     end
   end
@@ -70,7 +69,7 @@ describe Daemon do
     end
 
     it "starts daemon" do
-      Daemon.run(handler)
+      Wonga::Daemon.run(handler)
       expect(Daemons).to have_received(:run_proc)
     end
   end
