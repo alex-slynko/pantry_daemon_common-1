@@ -1,5 +1,4 @@
 require 'aws-sdk'
-require 'singleton'
 
 module Wonga
   module Daemon
