@@ -35,6 +35,10 @@ module Wonga
         @logger ||= initialize_logger
       end
 
+      def pantry_api_client
+        Wonga::Daemon::PantryApiClient.new(config['pantry']['url'], config['pantry']['api_key'], Wonga::Daemon.logger, config['pantry']['timeout'])
+      end
+
       private
       def initialize_logger
         logger = if log_config = config['daemon']['log']
