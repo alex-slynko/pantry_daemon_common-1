@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "em-winrm"
   spec.add_dependency "daemons"
   spec.add_dependency "syslogger"
+  spec.add_dependency "rest-client"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
@@ -31,5 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec-fire"
   spec.add_development_dependency 'guard-rspec'
   spec.add_development_dependency 'guard-bundler'
+  spec.add_development_dependency 'webmock'
 
 end
