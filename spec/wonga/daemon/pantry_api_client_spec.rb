@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'wonga/daemon/pantry_api_client'
-require 'webmock'
 
 describe Wonga::Daemon::PantryApiClient do
 
