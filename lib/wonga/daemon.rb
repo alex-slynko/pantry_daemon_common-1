@@ -55,7 +55,7 @@ at_exit do
   if Wonga::Daemon.config
     Wonga::Daemon.logger.info "Stopped at #{Time.now}"
     if $! && !($!.is_a?(SystemExit) && $!.success?)
-      Wonga::Daemon.logger.error $!.class.to_s
+      Wonga::Daemon.logger.error $!
       Wonga::Daemon.logger.error $!.backtrace.join("\n") if $!.respond_to? :backtrace
     end
   end
