@@ -2,6 +2,7 @@ require 'daemons'
 require 'wonga/daemon/subscriber'
 require 'wonga/daemon/publisher'
 require 'wonga/daemon/config'
+require 'wonga/daemon/pantry_api_client'
 require 'logger'
 require 'syslogger'
 
