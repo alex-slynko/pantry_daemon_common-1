@@ -23,13 +23,15 @@ module Wonga
 
       def run(handler)
         Daemons.run_proc(config['daemon']['app_name'], config.daemon_config) {
-          begin
-            Wonga::Daemon::Subscriber.new(logger).subscribe(config['sqs']['queue_name'], handler)
-          rescue => e
-            puts "#{e}"
-            retry
-          end
+          run_without_daemon(handler)
         }
+      end
+
+      def run_without_daemon(handler)
+        Wonga::Daemon::Subscriber.new(logger).subscribe(config['sqs']['queue_name'], handler)
+      rescue => e
+        logger.error "#{e}"
+        retry
       end
 
       def logger
