@@ -10,8 +10,20 @@ module Wonga
       end
 
       def update_ec2_instance(request_id, params)
-        params = params.to_json if params.is_a? Hash
-        @resource["/aws/ec2_instances/#{request_id}"].put params
+        send_put_request("/aws/ec2_instances/#{request_id}", params)
+      end
+
+      def send_put_request(url, params)
+        @resource[url].put prepared_params(params)
+      end
+
+      def send_post_request(url, params)
+        @resource[url].post prepared_params(params)
+      end
+
+      private
+      def prepared_params(params)
+        params.is_a?(Hash) ? params.to_json : params
       end
     end
   end
