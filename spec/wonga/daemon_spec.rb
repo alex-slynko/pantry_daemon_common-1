@@ -89,7 +89,7 @@ describe Wonga::Daemon do
     let(:subscriber) { instance_double('Wonga::Daemon::Subscriber').as_null_object }
     let(:handler) { double.as_null_object }
     let(:queue) { 'test_queue' }
-    let(:config) { { 'sqs' => { 'queue_name' => queue } } }
+    let(:config) { { 'sqs' => { 'queue_name' => queue }, 'daemon' => {} } }
 
     before(:each) do
       Wonga::Daemon::Subscriber.stub(:new).and_return(subscriber)
@@ -97,7 +97,7 @@ describe Wonga::Daemon do
 
     it "subscribes handler to config queue" do
       expect(subscriber).to receive(:subscribe).with(queue, handler)
-      subject.run_without_daemon(handler)
+      Wonga::Daemon.run_without_daemon(handler)
     end
   end
 end
