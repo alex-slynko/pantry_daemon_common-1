@@ -28,7 +28,7 @@ module Wonga
       end
 
       def run_without_daemon(handler)
-        Wonga::Daemon::Subscriber.new(logger).subscribe(config['sqs']['queue_name'], handler)
+        Wonga::Daemon::Subscriber.new(logger, @config).subscribe(config['sqs']['queue_name'], handler)
       rescue => e
         logger.error "#{e}"
         retry

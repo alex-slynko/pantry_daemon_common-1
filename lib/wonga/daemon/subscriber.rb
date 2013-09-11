@@ -3,8 +3,9 @@ require 'aws-sdk'
 module Wonga
   module Daemon
     class Subscriber
-      def initialize(logger)
+      def initialize(logger, config)
         @logger = logger
+        @config = config
       end
 
       def subscribe(queue_name, processor)
@@ -16,6 +17,9 @@ module Wonga
             @logger.debug message.to_s
             processor.handle_message(message)
           rescue JSON::ParserError => e
+            error_message = "Bad message. Message body: #{msg.body}. Backtrace: #{e.backtrace.to_s}."
+            Wonga::Daemon::Publisher.new(@config['sns']['error_arn'], @logger).publish(error: error_message)
+            @logger.debug error_message
             false
           end
         end

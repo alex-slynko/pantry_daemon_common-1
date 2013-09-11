@@ -1,14 +1,16 @@
 require 'spec_helper'
 require 'json'
 require "wonga/daemon/subscriber"
+require "wonga/daemon/publisher"
 require 'logger'
 
 describe Wonga::Daemon::Subscriber do
-  subject { Wonga::Daemon::Subscriber.new(instance_double('Logger').as_null_object) }
+  subject { Wonga::Daemon::Subscriber.new(instance_double('Logger').as_null_object, config) }
 
   let(:processor) { double }
   let(:queue_name) { "test_queue" }
   let(:message) { {'test' => 'test'} }
+  let(:config) { instance_double('Wonga::Daemon.config').as_null_object }
 
   context "for messages from SNS" do
     let(:message) {
@@ -40,8 +42,29 @@ describe Wonga::Daemon::Subscriber do
     subject.subscribe queue_name, processor
   end
 
-  it "returns false if message is not parseble" do
-    AWS::SQS.stub_chain(:new, :queues, :named, :poll).and_yield(double(body: "test"))
-    expect(subject.subscribe queue_name, processor).to be_false
+  context "when the message is not parseble" do
+    before(:each) do
+      Wonga::Daemon::Publisher.stub_chain(:new, :publish)
+      AWS::SQS.stub_chain(:new, :queues, :named, :poll).and_yield(double(body: "test"))
+      @logger = instance_double('Logger')
+      @subscriber = Wonga::Daemon::Subscriber.new(@logger, config)
+      @logger.stub(:info)
+    end
+    
+    it "returns false" do
+      expect(subject.subscribe queue_name, processor).to be_false
+    end
+  
+    it "logs the error" do
+      @logger.should_receive(:debug).with(/Bad message/)
+      @subscriber.subscribe(queue_name, processor)
+    end
+    
+    it "sends a message to the SQS error queue" do
+      @logger.should_receive(:debug).with(/Bad message/)
+      @subscriber.subscribe(queue_name, processor)
+
+      expect(Wonga::Daemon::Publisher).to have_received(:new)
+    end
   end
 end
