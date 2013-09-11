@@ -12,15 +12,27 @@ describe Wonga::Daemon::PantryApiClient do
   context "#update_ec2_instance" do
     it "sends http request" do
       WebMock.stub_request(:put, "#{url}/aws/ec2_instances/42").
-        with(:body => "{\"bootstrapped\":true}").
+        with(:body => "{\"bootstrapped\":true}", headers: {'X-Auth-Token' => api_key}).
                           to_return(:status => 200, :body => "")
       expect(subject.update_ec2_instance(42, { bootstrapped: true }).code).to be 200
     end
+  end
 
-    it "sets auth header" do
-      WebMock.stub_request(:put, "#{url}/aws/ec2_instances/42").with(headers: {'X-Auth-Token' => api_key})
-      subject.update_ec2_instance(42, {})
+  context "#send_put_request" do
+    it "sends http request" do
+      WebMock.stub_request(:put, "#{url}/aws").
+        with(:body => "{\"bootstrapped\":true}", headers: {'X-Auth-Token' => api_key}).
+                          to_return(:status => 200, :body => "")
+      expect(subject.send_put_request("aws", { bootstrapped: true }).code).to be 200
+    end
+  end
 
+  context "#send_post_request" do
+    it "sends http request" do
+      WebMock.stub_request(:post, "#{url}/aws").
+        with(:body => "{\"bootstrapped\":true}", headers: {'X-Auth-Token' => api_key}).
+                          to_return(:status => 200, :body => "")
+      expect(subject.send_post_request("aws", { bootstrapped: true }).code).to be 200
     end
   end
 end
