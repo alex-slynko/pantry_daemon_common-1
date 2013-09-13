@@ -19,7 +19,7 @@ module Wonga
           rescue JSON::ParserError => e
             error_message = "Bad message. Message body: #{msg.body}. Backtrace: #{e.backtrace.to_s}."
             Wonga::Daemon::Publisher.new(@config['sns']['error_arn'], @logger).publish(error: error_message)
-            @logger.debug error_message
+            @logger.error error_message
             false
           end
         end
