@@ -1,3 +1,11 @@
+unless ENV["SKIP_COV"]
+  require 'simplecov'
+  require 'simplecov-rcov'
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::RcovFormatter
+  ]
+end
 require 'aws-sdk'
 require 'rspec/fire'
 require 'webmock/rspec'
