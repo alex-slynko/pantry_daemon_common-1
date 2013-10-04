@@ -35,5 +35,12 @@ describe Wonga::Daemon::PantryApiClient do
       expect(subject.send_post_request("aws", { bootstrapped: true }).code).to be 200
     end
   end
+  
+  context "#send_delete_request" do
+    it "sends http request" do
+      WebMock.stub_request(:delete, "#{url}/aws").
+        with(headers: {'X-Auth-Token' => api_key}).to_return(:status => 200, :body => "")
+      expect(subject.send_delete_request("aws").code).to be 200
+    end
+  end
 end
-
