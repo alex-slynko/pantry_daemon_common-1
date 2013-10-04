@@ -20,6 +20,10 @@ module Wonga
       def send_post_request(url, params)
         @resource[url].post prepared_params(params)
       end
+      
+      def send_delete_request(url)
+        @resource[url].delete
+      end
 
       private
       def prepared_params(params)
