@@ -9,15 +9,6 @@ describe Wonga::Daemon::PantryApiClient do
 
   subject { described_class.new(url, api_key, logger) }
 
-  context "#update_ec2_instance" do
-    it "sends http request" do
-      WebMock.stub_request(:put, "#{url}/aws/ec2_instances/42").
-        with(:body => "{\"bootstrapped\":true}", headers: {'X-Auth-Token' => api_key}).
-                          to_return(:status => 200, :body => "")
-      expect(subject.update_ec2_instance(42, { bootstrapped: true }).code).to be 200
-    end
-  end
-
   context "#send_put_request" do
     it "sends http request" do
       WebMock.stub_request(:put, "#{url}/aws").
