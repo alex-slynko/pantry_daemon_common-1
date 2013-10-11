@@ -9,10 +9,6 @@ module Wonga
         RestClient.log = logger
       end
 
-      def update_ec2_instance(request_id, params)
-        send_put_request("/aws/ec2_instances/#{request_id}", params)
-      end
-
       def send_put_request(url, params)
         @resource[url].put prepared_params(params)
       end
