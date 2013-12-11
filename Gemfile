@@ -5,6 +5,7 @@ gemspec
 gem 'em-winrm', git: 'https://github.com/besol/em-winrm.git'
 
 group :test, :development do
+  gem 'fakefs', :require => "fakefs/safe"
   gem 'simplecov'
   gem 'simplecov-rcov'
 end
