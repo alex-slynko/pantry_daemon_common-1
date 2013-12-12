@@ -14,6 +14,7 @@ module Wonga
 
       def daemon_config
         {
+          multiple: @config['daemon']['daemons_count'].to_i > 1,
           backtrace: @config['daemon']['backtrace'],
           dir_mode: @config['daemon']['dir_mode'].to_sym,
           dir: "#{File.expand_path(@config['daemon']['dir'])}",
