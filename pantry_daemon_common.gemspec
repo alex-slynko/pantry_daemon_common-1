@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "aws-sdk"
   spec.add_dependency "net-ssh"
   spec.add_dependency "net-ssh-multi"
-  spec.add_dependency "em-winrm"
+  spec.add_dependency "em-winrm", ">= 0.5.5"
   spec.add_dependency "daemons"
   spec.add_dependency "syslogger"
   spec.add_dependency "rest-client"
