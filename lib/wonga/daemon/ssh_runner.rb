@@ -4,13 +4,13 @@ require 'net/ssh/multi'
 module Wonga
   module Daemon
     class SshRunner
-      def add_host(host, user="ubuntu", key=File.expand_path('~/.chef/aws-ssh-keypair.pem'))
-        session.use("#{user}@#{host}", {keys: key, keys_only: true })
+      def add_host(host, user = 'ubuntu', key = File.expand_path('~/.chef/aws-ssh-keypair.pem'))
+        session.use("#{user}@#{host}", keys: key, keys_only: true)
       end
 
       def run_commands(*commands, &block)
         commands.each do |command|
-          session.exec command do |ch, stream, data|
+          session.exec command do |ch, _stream, data|
             block.call(ch[:host], data) if block
           end
         end

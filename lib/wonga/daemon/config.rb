@@ -29,7 +29,7 @@ module Wonga
       end
 
       def configure_aws
-        AWS.config(@config["aws"])
+        AWS.config(@config['aws'])
       end
     end
   end

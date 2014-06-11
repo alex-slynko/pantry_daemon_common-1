@@ -3,8 +3,8 @@ require 'em-winrm'
 module Wonga
   module Daemon
     class WinRMRunner
-      def add_host(host, user="Administrator", password="TestPassword")
-        session.use(host, {user: user, password: password, basic_auth_only: true})
+      def add_host(host, user = 'Administrator', password = 'TestPassword')
+        session.use(host, user: user, password: password, basic_auth_only: true)
       end
 
       def run_commands(*commands, &block)

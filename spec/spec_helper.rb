@@ -1,4 +1,4 @@
-unless ENV["SKIP_COV"]
+unless ENV['SKIP_COV']
   require 'simplecov'
   require 'simplecov-rcov'
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
@@ -7,15 +7,12 @@ unless ENV["SKIP_COV"]
   ]
 end
 require 'aws-sdk'
-require 'rspec/fire'
 require 'webmock/rspec'
 require 'pry'
 
-AWS.config :access_key_id=>"test", :secret_access_key=>"test"
+AWS.config access_key_id: 'test', secret_access_key: 'test'
 AWS.stub!
 
 RSpec.configure do |config|
-  config.include(RSpec::Fire)
-
-  config.order = "random"
+  config.order = 'random'
 end
