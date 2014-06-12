@@ -28,4 +28,3 @@ module Wonga
     end
   end
 end
-

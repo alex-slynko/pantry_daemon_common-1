@@ -7,4 +7,5 @@ group :test, :development do
   gem 'fakefs', :require => "fakefs/safe"
   gem 'simplecov'
   gem 'simplecov-rcov'
+  gem 'rspec', '~> 3.0'
 end

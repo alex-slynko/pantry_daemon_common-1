@@ -9,9 +9,7 @@ require 'syslogger'
 module Wonga
   module Daemon
     class << self
-      def config
-        @config
-      end
+      attr_reader :config
 
       def load_config(filename)
         @config = Wonga::Daemon::Config.new(filename)
@@ -22,15 +20,15 @@ module Wonga
       end
 
       def run(handler)
-        Daemons.run_proc(config['daemon']['app_name'], config.daemon_config) {
+        Daemons.run_proc(config['daemon']['app_name'], config.daemon_config) do
           run_without_daemon(handler)
-        }
+        end
       end
 
       def run_without_daemon(handler)
         Wonga::Daemon::Subscriber.new(logger, @config).subscribe(config['sqs']['queue_name'], handler)
       rescue => e
-        logger.error "#{e}"
+        logger.error e.inspect
         retry
       end
 
@@ -43,15 +41,16 @@ module Wonga
       end
 
       private
+
       def initialize_logger
         logger = if log_config = config['daemon']['log']
-          if log_config['logger'] == 'file'
-            Logger.new(log_config['log_file'], log_config['shift_age'])
-          elsif log_config['logger'] == 'syslog'
-            facility = Syslog.const_get("LOG_#{log_config['log_facility'].upcase}")
-            Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
-          end
-        end
+                   if log_config['logger'] == 'file'
+                     Logger.new(log_config['log_file'], log_config['shift_age'])
+                   elsif log_config['logger'] == 'syslog'
+                     facility = Syslog.const_get("LOG_#{log_config['log_facility'].upcase}")
+                     Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
+                   end
+                 end
         logger || Logger.new(STDOUT)
       end
     end
@@ -61,9 +60,9 @@ end
 at_exit do
   if Wonga::Daemon.config
     Wonga::Daemon.logger.info "Stopped at #{Time.now}"
-    if $! && !($!.is_a?(SystemExit) && $!.success?)
-      Wonga::Daemon.logger.error $!
-      Wonga::Daemon.logger.error $!.backtrace.join("\n") if $!.respond_to? :backtrace
+    if $ERROR_INFO && !($ERROR_INFO.is_a?(SystemExit) && $ERROR_INFO.success?)
+      Wonga::Daemon.logger.error $ERROR_INFO
+      Wonga::Daemon.logger.error $ERROR_INFO.backtrace.join("\n") if $ERROR_INFO.respond_to? :backtrace
     end
   end
 end
