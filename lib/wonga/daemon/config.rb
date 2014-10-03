@@ -3,8 +3,13 @@ require 'aws-sdk'
 module Wonga
   module Daemon
     class Config
-      def initialize(config_file)
-        read_config(config_file)
+      def self.load(config_file)
+        config = read_config(config_file)
+        new(config)
+      end
+
+      def initialize(config)
+        @config = config
         configure_aws
       end
 
@@ -23,9 +28,10 @@ module Wonga
       end
 
       private
-      def read_config(config_file)
+
+      def self.read_config(config_file)
         env = ENV['ENVIRONMENT'] || 'development'
-        @config = YAML.load_file(config_file)[env]
+        YAML.load_file(config_file)[env]
       end
 
       def configure_aws

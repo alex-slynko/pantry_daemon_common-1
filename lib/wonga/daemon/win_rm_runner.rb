@@ -22,6 +22,7 @@ module Wonga
       end
 
       private
+
       def session
         @session ||= EventMachine::WinRM::Session.new
       end

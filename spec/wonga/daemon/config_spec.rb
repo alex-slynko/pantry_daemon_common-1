@@ -3,35 +3,39 @@ require 'wonga/daemon/config'
 require 'fakefs/safe'
 
 describe Wonga::Daemon::Config do
-  before(:all) do
-    FakeFS.activate!
-  end
-
-  after(:all) do
-    FakeFS.deactivate!
-  end
-
-  before(:each) do
-    File.open(file, 'w') do |file|
-      file.puts YAML.dump(config)
-    end
-    stub_const('ENV',  'ENVIRONMENT' => environment)
-  end
-
-  subject { described_class.new(file) }
-  let(:file) { 'here' }
-  let(:environment) { 'development' }
-  let(:config) { { environment => { 'daemon' => daemons_config, 'aws' => {} } } }
+  subject { described_class.new config }
+  let(:config) { { 'daemon' => daemons_config, 'aws' => {} } }
   let(:daemons_config) { { 'daemons_count' => daemons_count, 'dir' => file, 'dir_mode' => 'dir' } }
   let(:daemons_count) { 1 }
+  let(:file) { 'here' }
 
-  it 'configures AWS' do
-    expect(AWS).to receive(:config)
-    subject
-  end
+  context '.load' do
+    before(:all) do
+      FakeFS.activate!
+    end
 
-  it 'uses part of config for current environment' do
-    expect(subject['daemon']).to eq(daemons_config)
+    after(:all) do
+      FakeFS.deactivate!
+    end
+
+    before(:each) do
+      File.open(file, 'w') do |file|
+        file.puts YAML.dump(environment => config)
+      end
+      stub_const('ENV',  'ENVIRONMENT' => environment)
+    end
+
+    subject { described_class.load(file) }
+    let(:environment) { 'development' }
+
+    it 'configures AWS' do
+      expect(AWS).to receive(:config)
+      subject
+    end
+
+    it 'uses part of config for current environment' do
+      expect(subject['daemon']).to eq(daemons_config)
+    end
   end
 
   context '#daemons_config' do

@@ -31,6 +31,7 @@ module Wonga
       end
 
       private
+
       def aws
         @aws ||= AWS::EC2.new
       end

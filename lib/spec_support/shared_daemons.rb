@@ -1,6 +1,6 @@
 shared_examples 'send message' do
   it 'publishes success message' do
-    publisher.stub(:publish) do |hash|
+    allow(publisher).to receive(:publish) do |hash|
       expect(message.all? { |key, value| hash[key] == value }).to be true
     end
 

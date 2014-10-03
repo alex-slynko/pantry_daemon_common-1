@@ -8,11 +8,18 @@ unless ENV['SKIP_COV']
 end
 require 'aws-sdk'
 require 'webmock/rspec'
-require 'pry'
 
 AWS.config access_key_id: 'test', secret_access_key: 'test'
 AWS.stub!
 
 RSpec.configure do |config|
   config.order = 'random'
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+  # config.warnings = true
 end

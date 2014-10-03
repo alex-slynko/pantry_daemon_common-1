@@ -19,6 +19,7 @@ module Wonga
       end
 
       private
+
       def session
         @session ||= Net::SSH::Multi.start
       end

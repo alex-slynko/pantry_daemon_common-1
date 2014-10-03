@@ -22,6 +22,7 @@ module Wonga
       end
 
       private
+
       def prepared_params(params)
         params.is_a?(Hash) ? params.to_json : params
       end

@@ -62,7 +62,7 @@ describe Wonga::Daemon do
 
   context '.run' do
     let(:config) do
-      config = { 'daemon' => { 'app_name' => 'test' } }
+      config = Wonga::Daemon::Config.new('daemon' => { 'app_name' => 'test' }, 'aws' => {})
       allow(config).to receive(:daemon_config).and_return({})
       config
     end

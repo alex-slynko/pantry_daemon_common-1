@@ -12,7 +12,7 @@ module Wonga
       attr_reader :config
 
       def load_config(filename)
-        @config = Wonga::Daemon::Config.new(filename)
+        @config = Wonga::Daemon::Config.load(filename)
       end
 
       def publisher
@@ -26,7 +26,7 @@ module Wonga
       end
 
       def run_without_daemon(handler)
-        Wonga::Daemon::Subscriber.new(logger, @config).subscribe(config['sqs']['queue_name'], handler)
+        Wonga::Daemon::Subscriber.new(logger, config).subscribe(config['sqs']['queue_name'], handler)
       rescue => e
         logger.error e.inspect
         retry
@@ -43,7 +43,8 @@ module Wonga
       private
 
       def initialize_logger
-        logger = if log_config = config['daemon']['log']
+        log_config = config['daemon']['log']
+        logger = if log_config
                    if log_config['logger'] == 'file'
                      Logger.new(log_config['log_file'], log_config['shift_age'])
                    elsif log_config['logger'] == 'syslog'
