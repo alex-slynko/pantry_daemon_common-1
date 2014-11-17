@@ -19,6 +19,10 @@ module Wonga
         @publisher ||= Wonga::Daemon::Publisher.new(config['sns']['topic_arn'], logger)
       end
 
+      def error_publisher
+        @error_publisher ||= Wonga::Daemon::Publisher.new(config['sns']['error_arn'], logger)
+      end
+
       def run(handler)
         Daemons.run_proc(config['daemon']['app_name'], config.daemon_config) do
           run_without_daemon(handler)

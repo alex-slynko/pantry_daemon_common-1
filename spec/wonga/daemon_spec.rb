@@ -19,6 +19,19 @@ describe Wonga::Daemon do
     end
   end
 
+  context '.error_publisher' do
+    let(:publish_arn) { 'publish' }
+    let(:error_publisher) { double }
+    let(:logger) { double }
+    let(:config) { { 'sns' => { 'error_arn' => publish_arn } } }
+
+    it 'creates publisher using config' do
+      allow(Wonga::Daemon).to receive(:logger).and_return(logger)
+      expect(Wonga::Daemon::Publisher).to receive(:new).with(publish_arn, logger).and_return(error_publisher)
+      expect(Wonga::Daemon.error_publisher).to eql(error_publisher)
+    end
+  end
+
   context '.logger' do
     let(:config) { { 'daemon' => { 'log' => logger_config, 'app_name' => app_name } } }
     let(:app_name) { 'test' }
