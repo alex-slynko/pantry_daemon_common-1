@@ -44,31 +44,69 @@ describe Wonga::Daemon do
     context 'when logger type in config is file' do
       let(:file_name) { 'log.log' }
       let(:shift_age) { 'daily' }
-      let(:logger_config) do
-        {
-          'logger' => 'file',
-          'log_file' => file_name,
-          'shift_age' => shift_age
-        }
+
+      context 'and logger level is defined' do
+        let(:logger_config) do
+          {
+            'logger' => 'file',
+            'log_file' => file_name,
+            'shift_age' => shift_age,
+            'level' => 'FATAL'
+          }
+        end
+
+        it 'creates regular logger with custom logger level' do
+          expect(Logger).to receive(:new).with(file_name, shift_age).and_return(logger)
+          expect(logger).to receive(:level=).with(4)
+          expect(Wonga::Daemon.logger).to eql(logger)
+        end
       end
 
-      it 'creates regular logger' do
-        expect(Logger).to receive(:new).with(file_name, shift_age).and_return(logger)
-        expect(Wonga::Daemon.logger).to eql(logger)
+      context 'and logger level is default' do
+        let(:logger_config) do
+          {
+            'logger' => 'file',
+            'log_file' => file_name,
+            'shift_age' => shift_age
+          }
+        end
+
+        it 'creates regular logger with custom logger level' do
+          expect(Logger).to receive(:new).with(file_name, shift_age).and_return(logger)
+          expect(Wonga::Daemon.logger).to eql(logger)
+        end
       end
     end
 
     context 'when logger type in config is syslog' do
-      let(:logger_config) do
-        {
-          'logger' => 'syslog',
-          'log_facility' => 'daemon'
-        }
+      context 'and logger level defined' do
+        let(:logger_config) do
+          {
+            'logger' => 'syslog',
+            'log_facility' => 'daemon',
+            'level' => 'WARN'
+          }
+        end
+
+        it 'creates syslogger with custom logger level' do
+          expect(Syslogger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
+          expect(logger).to receive(:level=).with(2)
+          expect(Wonga::Daemon.logger).to eql(logger)
+        end
       end
 
-      it 'creates syslogger' do
-        expect(Syslogger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
-        expect(Wonga::Daemon.logger).to eql(logger)
+      context 'and logger level is default' do
+        let(:logger_config) do
+          {
+            'logger' => 'syslog',
+            'log_facility' => 'daemon'
+          }
+        end
+
+        it 'creates syslogger with custom logger level' do
+          expect(Syslogger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
+          expect(Wonga::Daemon.logger).to eql(logger)
+        end
       end
     end
   end

@@ -47,16 +47,21 @@ module Wonga
       private
 
       def initialize_logger
-        log_config = config['daemon']['log']
-        logger = if log_config
-                   if log_config['logger'] == 'file'
-                     Logger.new(log_config['log_file'], log_config['shift_age'])
-                   elsif log_config['logger'] == 'syslog'
-                     facility = Syslog.const_get("LOG_#{log_config['log_facility'].upcase}")
-                     Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
-                   end
-                 end
+        logger = get_logger(config['daemon']['log']) if config['daemon']['log']
         logger || Logger.new(STDOUT)
+      end
+
+      def get_logger(config_file)
+        if config_file['logger'] == 'file'
+          logger = Logger.new(config_file['log_file'], config_file['shift_age'])
+        elsif config_file['logger'] == 'syslog'
+          facility = Syslog.const_get("LOG_#{config_file['log_facility'].upcase}")
+          logger = Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
+        end
+
+        # available levels: DEBUG(0), INFO(1), WARN(2), ERROR(3), FATAL(4), UNKNOWN(5)
+        logger.level = Logger.const_get(config_file['level']) if config_file['level'] && logger
+        logger
       end
     end
   end

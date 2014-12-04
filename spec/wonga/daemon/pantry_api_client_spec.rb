@@ -11,27 +11,28 @@ describe Wonga::Daemon::PantryApiClient do
 
   context '#send_put_request' do
     it 'sends http request' do
-      WebMock.stub_request(:put, "#{url}/aws")
-        .with(body: "{\"bootstrapped\":true}", headers: { 'X-Auth-Token' => api_key })
-                          .to_return(status: 200, body: '')
-      expect(subject.send_put_request('aws',  bootstrapped: true).code).to be 200
+      expect(logger).to receive(:info).with('PUT request to aws was sent successfully')
+      expect(logger).to receive(:debug).with('{:bootstrapped=>true}')
+      expect_any_instance_of(RestClient::Resource).to receive(:put).with("{\"bootstrapped\":true}")
+      subject.send_put_request('aws', bootstrapped: true)
     end
   end
 
   context '#send_post_request' do
     it 'sends http request' do
-      WebMock.stub_request(:post, "#{url}/aws")
-        .with(body: "{\"bootstrapped\":true}", headers: { 'X-Auth-Token' => api_key })
-                          .to_return(status: 200, body: '')
-      expect(subject.send_post_request('aws',  bootstrapped: true).code).to be 200
+      expect(logger).to receive(:info).with('POST request to aws was sent successfully')
+      expect(logger).to receive(:debug).with('{:bootstrapped=>true}')
+      expect_any_instance_of(RestClient::Resource).to receive(:post).with("{\"bootstrapped\":true}")
+      subject.send_post_request('aws', bootstrapped: true)
     end
   end
 
   context '#send_delete_request' do
     it 'sends http request' do
-      WebMock.stub_request(:delete, "#{url}/aws?user_id=1")
-        .with(headers: { 'X-Auth-Token' => api_key }).to_return(status: 200, body: "{\"")
-      expect(subject.send_delete_request('aws', user_id: 1).code).to be 200
+      expect(logger).to receive(:info).with('DELETE request to aws was sent successfully')
+      expect(logger).to receive(:debug).with('{:user_id=>1}')
+      expect_any_instance_of(RestClient::Resource).to receive(:delete).with(params: { user_id: 1 })
+      subject.send_delete_request('aws', user_id: 1)
     end
   end
 end
