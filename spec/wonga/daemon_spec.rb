@@ -1,15 +1,27 @@
-require 'spec_helper'
 require 'wonga/daemon'
 
-describe Wonga::Daemon do
+RSpec.describe Wonga::Daemon do
   before(:each) do
     allow(Wonga::Daemon).to receive(:config).and_return(config)
   end
 
+  let(:publisher) { double }
+  let(:logger) { double }
+  let(:config) { {} }
+
+  context '.aws_resource' do
+    let(:aws_resource) { double }
+
+    it 'creates aws resource' do
+      allow(Wonga::Daemon).to receive(:logger).and_return(logger)
+      allow(Wonga::Daemon).to receive(:error_publisher).and_return(publisher)
+      expect(Wonga::Daemon::AWSResource).to receive(:new).with(publisher, logger).and_return(aws_resource)
+      expect(Wonga::Daemon.aws_resource).to eq(aws_resource)
+    end
+  end
+
   context '.publisher' do
     let(:publish_arn) { 'publish' }
-    let(:publisher) { double }
-    let(:logger) { double }
     let(:config) { { 'sns' => { 'topic_arn' => publish_arn } } }
 
     it 'creates publisher using config' do
@@ -21,21 +33,18 @@ describe Wonga::Daemon do
 
   context '.error_publisher' do
     let(:publish_arn) { 'publish' }
-    let(:error_publisher) { double }
-    let(:logger) { double }
     let(:config) { { 'sns' => { 'error_arn' => publish_arn } } }
 
     it 'creates publisher using config' do
       allow(Wonga::Daemon).to receive(:logger).and_return(logger)
-      expect(Wonga::Daemon::Publisher).to receive(:new).with(publish_arn, logger).and_return(error_publisher)
-      expect(Wonga::Daemon.error_publisher).to eql(error_publisher)
+      expect(Wonga::Daemon::Publisher).to receive(:new).with(publish_arn, logger).and_return(publisher)
+      expect(Wonga::Daemon.error_publisher).to eql(publisher)
     end
   end
 
   context '.logger' do
     let(:config) { { 'daemon' => { 'log' => logger_config, 'app_name' => app_name } } }
     let(:app_name) { 'test' }
-    let(:logger) { double }
 
     before(:each) do
       Wonga::Daemon.instance_variable_set(:@logger, nil)
@@ -137,12 +146,15 @@ describe Wonga::Daemon do
   end
 
   context '.run_without_daemon' do
-    let(:subscriber) { instance_double('Wonga::Daemon::Subscriber').as_null_object }
-    let(:handler) { double.as_null_object }
+    let(:subscriber) { instance_double(Wonga::Daemon::Subscriber).as_null_object }
+    let(:handler) { double(handle_message: true) }
     let(:queue) { 'test_queue' }
     let(:config) { { 'sqs' => { 'queue_name' => queue }, 'daemon' => {} } }
+    let(:logger) { double }
 
     before(:each) do
+      allow(Wonga::Daemon).to receive(:logger).and_return(logger)
+      allow(Wonga::Daemon).to receive(:error_publisher).and_return(publisher)
       allow(Wonga::Daemon::Subscriber).to receive(:new).and_return(subscriber)
     end
 

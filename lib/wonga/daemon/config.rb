@@ -35,7 +35,8 @@ module Wonga
       end
 
       def configure_aws
-        AWS.config(@config['aws'])
+        Aws.config[:region] = @config['aws']['region']
+        Aws.config[:credentials] = Aws::Credentials.new(@config['aws']['access_key_id'], @config['aws']['secret_access_key'])
       end
     end
   end

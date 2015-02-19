@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'wonga/daemon/ssh_runner'
 
-describe Wonga::Daemon::SshRunner do
+RSpec.describe Wonga::Daemon::SshRunner do
   let(:server) { double }
 
   before(:each) do

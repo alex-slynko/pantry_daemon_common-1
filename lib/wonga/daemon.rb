@@ -1,10 +1,11 @@
 require 'daemons'
-require 'wonga/daemon/subscriber'
-require 'wonga/daemon/publisher'
-require 'wonga/daemon/config'
-require 'wonga/daemon/pantry_api_client'
 require 'logger'
 require 'syslogger'
+require 'wonga/daemon/aws_resource'
+require 'wonga/daemon/config'
+require 'wonga/daemon/pantry_api_client'
+require 'wonga/daemon/publisher'
+require 'wonga/daemon/subscriber'
 
 module Wonga
   module Daemon
@@ -30,7 +31,7 @@ module Wonga
       end
 
       def run_without_daemon(handler)
-        Wonga::Daemon::Subscriber.new(logger, config).subscribe(config['sqs']['queue_name'], handler)
+        Wonga::Daemon::Subscriber.new(logger, error_publisher).subscribe(config['sqs']['queue_name'], handler)
       rescue => e
         logger.error e.inspect
         retry
@@ -42,6 +43,10 @@ module Wonga
 
       def pantry_api_client
         Wonga::Daemon::PantryApiClient.new(config['pantry']['url'], config['pantry']['api_key'], Wonga::Daemon.logger, config['pantry']['timeout'])
+      end
+
+      def aws_resource
+        Wonga::Daemon::AWSResource.new(error_publisher, logger)
       end
 
       private

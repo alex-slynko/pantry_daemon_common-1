@@ -1,8 +1,7 @@
 require 'spec_helper'
 require 'wonga/daemon/pantry_api_client'
 
-describe Wonga::Daemon::PantryApiClient do
-
+RSpec.describe Wonga::Daemon::PantryApiClient do
   let(:logger) { instance_double('Logger').as_null_object }
   let(:url) { 'http://example.com' }
   let(:api_key) { 'api_key' }

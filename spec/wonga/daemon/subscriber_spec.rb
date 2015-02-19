@@ -1,20 +1,60 @@
-require 'spec_helper'
-require 'json'
 require 'wonga/daemon/subscriber'
-require 'wonga/daemon/publisher'
 require 'logger'
 
-describe Wonga::Daemon::Subscriber do
-  subject { Wonga::Daemon::Subscriber.new(logger, config) }
+RSpec.describe Wonga::Daemon::Subscriber do
+  subject { Wonga::Daemon::Subscriber.new(logger, error_publisher, sqs_client) }
 
-  let(:processor) { double }
+  let(:sqs_client) { Aws::SQS::Client.new(stub_responses: true) }
+  let(:error_publisher) { instance_double(Wonga::Daemon::Publisher) }
+  let(:processor) { double(handle_message: true) }
   let(:queue_name) { 'test_queue' }
-  let(:message) { { 'test' => 'test' } }
-  let(:config) { { 'sns' => { 'error_arn' => 'arn' } } }
+  let(:message_body) { { 'test' => 'test' } }
   let(:logger) { instance_double(Logger).as_null_object }
+  let(:receipt_handle) { 'test-message-id' }
+  let(:message) { { body: message_body.to_json, receipt_handle: receipt_handle } }
+
+  before(:each) do
+    sqs_client.stub_responses(:get_queue_url, queue_url: 'https://aws.amazon.com/some_url')
+    sqs_client.stub_responses(:receive_message, messages: [message])
+    sqs_client.stub_responses(:delete_message)
+  end
+
+  def run_cycle_one
+    expect(subject).to receive(:sleep).and_throw(:in_loop)
+    catch :in_loop do
+      subject.subscribe(queue_name, processor)
+    end
+  end
+
+  it 'gets queue_url using name' do
+    expect(sqs_client).to receive(:get_queue_url).with(queue_name: queue_name).and_call_original
+    run_cycle_one
+  end
+
+  it 'deletes message' do
+    expect(sqs_client).to receive(:delete_message).with(queue_url: 'https://aws.amazon.com/some_url', receipt_handle: receipt_handle).and_call_original
+    run_cycle_one
+  end
+
+  it 'reads polls from sqs' do
+    expect(sqs_client).to receive(:receive_message).with(queue_url: 'https://aws.amazon.com/some_url').and_call_original
+    run_cycle_one
+  end
+
+  context 'when there is no message' do
+    before(:each) do
+      sqs_client.stub_responses(:receive_message)
+    end
+
+    it 'does nothing' do
+      expect(sqs_client).to receive(:receive_message).with(queue_url: 'https://aws.amazon.com/some_url').and_call_original
+      expect(sqs_client).not_to receive(:delete_message)
+      run_cycle_one
+    end
+  end
 
   context 'for messages from SNS' do
-    let(:message) do
+    let(:message_body) do
       {
         'Type' => 'Notification',
         'MessageId' => 'messageid',
@@ -32,35 +72,32 @@ describe Wonga::Daemon::Subscriber do
       }
     end
 
-    it 'process parsed messages using process' do
-      allow(processor).to receive(:handle_message) do |hash|
-        expect(hash['pantry_request_id']).to eql 45
-      end
-      allow(AWS::SQS).to receive_message_chain(:new, :queues, :named, :poll).and_yield(double(body: message.to_json))
-      subject.subscribe queue_name, processor
+    it 'deletes message' do
+      expect(sqs_client).to receive(:delete_message).with(queue_url: 'https://aws.amazon.com/some_url', receipt_handle: receipt_handle).and_call_original
+      run_cycle_one
     end
   end
 
-  it 'process parsed messages using processor' do
-    expect(processor).to receive(:handle_message).with(message)
-    allow(AWS::SQS).to receive_message_chain(:new, :queues, :named, :poll).and_yield(double(body: message.to_json))
-    subject.subscribe queue_name, processor
+  context 'when processor raises exception' do
+    it 'keeps message' do
+      expect(processor).to receive(:handle_message).and_raise
+      expect(sqs_client).not_to receive(:delete_message)
+      run_cycle_one
+    end
   end
 
   context 'when the message is not parseble' do
-    let(:publisher) { instance_double(Wonga::Daemon::Publisher, publish: true) }
-    before(:each) do
-      allow(Wonga::Daemon::Publisher).to receive(:new).and_return(publisher)
-      allow(AWS::SQS).to receive_message_chain(:new, :queues, :named, :poll).and_yield(double(body: 'test'))
-    end
+    let(:error_publisher) { instance_double(Wonga::Daemon::Publisher, publish: true) }
+    let(:message_body) { 'text' }
 
-    it 'returns false' do
-      expect(subject.subscribe queue_name, processor).to be false
+    it 'deletes messages' do
+      expect(sqs_client).to receive(:delete_message).with(queue_url: 'https://aws.amazon.com/some_url', receipt_handle: receipt_handle).and_call_original
+      run_cycle_one
     end
 
     it 'logs the error' do
-      subject.subscribe(queue_name, processor)
-      expect(logger).to have_received(:error).with(/Bad message/)
+      expect(logger).to receive(:error)
+      run_cycle_one
     end
   end
 end

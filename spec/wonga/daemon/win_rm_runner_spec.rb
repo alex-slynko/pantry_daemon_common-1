@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'wonga/daemon/win_rm_runner'
 
-describe Wonga::Daemon::WinRMRunner do
+RSpec.describe Wonga::Daemon::WinRMRunner do
   let(:server) { double }
   before(:each) { allow(EventMachine::WinRM::Session).to receive(:new).and_return(server) }
 

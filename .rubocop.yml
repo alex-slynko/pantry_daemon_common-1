@@ -5,14 +5,15 @@ AllCops:
     - '**/version.rb'
     - 'Guardfile'
 
-ClassAndModuleChildren:
-  Enabled: false
-Documentation:
+Metrics/AbcSize:
   Enabled: false
 
-CollectionMethods:
-  Enabled: false
-LineLength:
+Metrics/LineLength:
   Max: 160
+
+# Configuration parameters: CountComments.
 Metrics/MethodLength:
-  Max: 30
+  Max: 20
+
+Style/Documentation:
+  Enabled: false

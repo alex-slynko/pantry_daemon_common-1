@@ -2,14 +2,17 @@ require 'spec_helper'
 require 'wonga/daemon/config'
 require 'fakefs/safe'
 
-describe Wonga::Daemon::Config do
+RSpec.describe Wonga::Daemon::Config do
   subject { described_class.new config }
-  let(:config) { { 'daemon' => daemons_config, 'aws' => {} } }
+  let(:aws_config) { {} }
+  let(:config) { { 'daemon' => daemons_config, 'aws' => aws_config } }
   let(:daemons_config) { { 'daemons_count' => daemons_count, 'dir' => file, 'dir_mode' => 'dir' } }
   let(:daemons_count) { 1 }
   let(:file) { 'here' }
 
   context '.load' do
+    let(:aws_config) { { 'region' => 'eu-west-1', 'secret_access_key' => 'KEY', 'access_key_id' => 'KEY_ID' } }
+
     before(:all) do
       FakeFS.activate!
     end
@@ -19,18 +22,23 @@ describe Wonga::Daemon::Config do
     end
 
     before(:each) do
-      File.open(file, 'w') do |file|
-        file.puts YAML.dump(environment => config)
+      File.open(file, 'w') do |file_content|
+        file_content.puts YAML.dump(environment => config)
       end
       stub_const('ENV',  'ENVIRONMENT' => environment)
+      Aws.config = {}
     end
 
     subject { described_class.load(file) }
     let(:environment) { 'development' }
 
     it 'configures AWS' do
-      expect(AWS).to receive(:config)
+      expect(Aws.config[:region]).to be_nil
+      expect(Aws.config[:credentials]).to be_nil
       subject
+      expect(Aws.config[:region]).to eq 'eu-west-1'
+      expect(Aws.config[:credentials].secret_access_key).to eq 'KEY'
+      expect(Aws.config[:credentials].access_key_id).to eq 'KEY_ID'
     end
 
     it 'uses part of config for current environment' do
