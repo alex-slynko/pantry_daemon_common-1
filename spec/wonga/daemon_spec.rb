@@ -1,4 +1,5 @@
 require 'wonga/daemon'
+require 'rufus-scheduler'
 
 RSpec.describe Wonga::Daemon do
   before(:each) do
@@ -121,27 +122,48 @@ RSpec.describe Wonga::Daemon do
   end
 
   context '.run' do
-    let(:config) do
-      config = Wonga::Daemon::Config.new('daemon' => { 'app_name' => 'test' }, 'aws' => {})
-      allow(config).to receive(:daemon_config).and_return({})
-      config
-    end
-
     let(:handler) { double.as_null_object }
 
     before(:each) do
       allow(Daemons).to receive(:run_proc)
     end
 
-    it 'starts daemon' do
-      Wonga::Daemon.run(handler)
-      expect(Daemons).to have_received(:run_proc)
+    context 'when config has sqs in config' do
+      let(:config) do
+        config = Wonga::Daemon::Config.new('daemon' => { 'app_name' => 'test' }, 'sqs' => {}, 'aws' => {})
+        allow(config).to receive(:daemon_config).and_return({})
+        config
+      end
+
+      it 'starts daemon' do
+        Wonga::Daemon.run(handler)
+        expect(Daemons).to have_received(:run_proc)
+      end
+
+      it 'runs using run_without_daemon internally' do
+        allow(Daemons).to receive(:run_proc).and_yield
+        expect(Wonga::Daemon).to receive(:run_without_daemon)
+        Wonga::Daemon.run(handler)
+      end
     end
 
-    it 'runs using run_without_daemon internally' do
-      allow(Daemons).to receive(:run_proc).and_yield
-      expect(Wonga::Daemon).to receive(:run_without_daemon)
-      Wonga::Daemon.run(handler)
+    context 'when config has scheduler part in it' do
+      let(:config) do
+        config = Wonga::Daemon::Config.new('daemon' => { 'app_name' => 'test' }, 'scheduler' => {}, 'aws' => {})
+        allow(config).to receive(:daemon_config).and_return({})
+        config
+      end
+
+      it 'starts daemon' do
+        Wonga::Daemon.run(handler)
+        expect(Daemons).to have_received(:run_proc)
+      end
+
+      it 'runs using run_with_scheduler internally' do
+        allow(Daemons).to receive(:run_proc).and_yield
+        expect(Wonga::Daemon).to receive(:run_with_scheduler)
+        Wonga::Daemon.run(handler)
+      end
     end
   end
 
@@ -150,7 +172,6 @@ RSpec.describe Wonga::Daemon do
     let(:handler) { double(handle_message: true) }
     let(:queue) { 'test_queue' }
     let(:config) { { 'sqs' => { 'queue_name' => queue }, 'daemon' => {} } }
-    let(:logger) { double }
 
     before(:each) do
       allow(Wonga::Daemon).to receive(:logger).and_return(logger)
@@ -161,6 +182,36 @@ RSpec.describe Wonga::Daemon do
     it 'subscribes handler to config queue' do
       expect(subscriber).to receive(:subscribe).with(queue, handler)
       Wonga::Daemon.run_without_daemon(handler)
+    end
+  end
+
+  describe '.run_with_scheduler' do
+    let(:scheduler) { instance_double(Rufus::Scheduler).as_null_object }
+    let(:daemon_config) { {} }
+    let(:handler) { double(run: true) }
+    let(:config) { { 'scheduler' => { 'interval' => 0, 'timeout' => 0 } } }
+
+    before(:each) do
+      allow(logger).to receive(:warn)
+      allow(logger).to receive(:info)
+      allow(Wonga::Daemon).to receive(:logger).and_return(logger)
+      allow(Rufus::Scheduler).to receive(:new).and_return(scheduler)
+      Wonga::Daemon.instance_variable_set(:@scheduler, nil)
+    end
+
+    it 'schedules handler to run at intervals' do
+      Wonga::Daemon.run_with_scheduler(handler)
+      expect(scheduler).to have_received(:interval).with(
+        config['scheduler']['interval'],
+        first: :immediately,
+        overlap: false,
+        timeout: config['scheduler']['timeout']
+      )
+    end
+
+    it 'scheduler joins thread' do
+      Wonga::Daemon.run_with_scheduler(handler)
+      expect(scheduler).to have_received(:join)
     end
   end
 end

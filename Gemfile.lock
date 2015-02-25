@@ -1,13 +1,14 @@
 PATH
   remote: .
   specs:
-    pantry_daemon_common (0.4.0)
+    pantry_daemon_common (0.5.1)
       aws-sdk
       daemons
       em-winrm (>= 0.5.5)
       net-ssh
       net-ssh-multi
       rest-client
+      rufus-scheduler
       syslogger
 
 GEM
@@ -144,6 +145,8 @@ GEM
       ruby-progressbar (~> 1.4)
     ruby-progressbar (1.7.1)
     rubyntlm (0.1.1)
+    rufus-scheduler (3.0.9)
+      tzinfo
     safe_yaml (1.0.4)
     savon (0.9.5)
       akami (~> 1.0)
@@ -164,8 +167,11 @@ GEM
     slop (3.6.0)
     syslogger (1.6.0)
     thor (0.19.1)
+    thread_safe (0.3.4)
     timers (4.0.1)
       hitimes
+    tzinfo (1.2.2)
+      thread_safe (~> 0.1)
     uuidtools (2.1.5)
     wasabi (1.0.0)
       nokogiri (>= 1.4.0)

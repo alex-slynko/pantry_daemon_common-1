@@ -24,9 +24,27 @@ module Wonga
         @error_publisher ||= Wonga::Daemon::Publisher.new(config['sns']['error_arn'], logger)
       end
 
+      def run_with_scheduler(handler)
+        scheduler.interval(config['scheduler']['interval'], first: :immediately, overlap: false, timeout: config['scheduler']['timeout']) do
+          time_start = Time.now.utc
+          logger.warn "Starting job at #{time_start}"
+          handler.run
+          time_finish = Time.now.utc
+          logger.warn "Completed job at #{time_finish} in #{time_finish - time_start} secs"
+        end
+        scheduler.join
+      rescue => e
+        logger.error e.inspect
+        retry
+      end
+
       def run(handler)
         Daemons.run_proc(config['daemon']['app_name'], config.daemon_config) do
-          run_without_daemon(handler)
+          if config['sqs']
+            run_without_daemon(handler)
+          elsif config['scheduler']
+            run_with_scheduler(handler)
+          end
         end
       end
 
@@ -50,6 +68,11 @@ module Wonga
       end
 
       private
+
+      def scheduler
+        require 'rufus-scheduler'
+        @scheduler ||= Rufus::Scheduler.new(frequency: config['scheduler']['frequency'])
+      end
 
       def initialize_logger
         logger = get_logger(config['daemon']['log']) if config['daemon']['log']
