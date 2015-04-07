@@ -30,6 +30,7 @@ module Wonga
       private
 
       def self.read_config(config_file)
+        require 'yaml'
         env = ENV['ENVIRONMENT'] || 'development'
         YAML.load_file(config_file)[env]
       end

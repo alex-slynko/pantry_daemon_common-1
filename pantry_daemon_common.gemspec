@@ -18,13 +18,12 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'aws-sdk'
+  spec.add_dependency 'aws-sdk', '~> 2.0'
   spec.add_dependency 'daemons'
-  spec.add_dependency 'em-winrm', '>= 0.5.5'
+  spec.add_dependency 'em-winrm', '~> 0.6'
   spec.add_dependency 'net-ssh'
   spec.add_dependency 'net-ssh-multi'
   spec.add_dependency 'rest-client'
-  spec.add_dependency 'syslogger'
   spec.add_dependency 'rufus-scheduler'
 
   spec.add_development_dependency 'bundler', '~> 1.3'

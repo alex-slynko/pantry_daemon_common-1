@@ -14,3 +14,9 @@ shared_examples 'handler' do
     expect(subject).to respond_to(:handle_message).with(1).argument
   end
 end
+
+shared_examples 'scheduled task' do
+  it 'runs periodically' do
+    expect(subject).to respond_to(:run).with(0).arguments
+  end
+end

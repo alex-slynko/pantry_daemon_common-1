@@ -1,26 +1,23 @@
-require 'daemons'
-require 'logger'
-require 'syslogger'
-require 'wonga/daemon/aws_resource'
-require 'wonga/daemon/config'
-require 'wonga/daemon/pantry_api_client'
-require 'wonga/daemon/publisher'
-require 'wonga/daemon/subscriber'
-
 module Wonga
   module Daemon
     class << self
       attr_reader :config
 
       def load_config(filename)
+        require 'wonga/daemon/config'
+
         @config = Wonga::Daemon::Config.load(filename)
       end
 
       def publisher
+        require 'wonga/daemon/publisher'
+
         @publisher ||= Wonga::Daemon::Publisher.new(config['sns']['topic_arn'], logger)
       end
 
       def error_publisher
+        require 'wonga/daemon/publisher'
+
         @error_publisher ||= Wonga::Daemon::Publisher.new(config['sns']['error_arn'], logger)
       end
 
@@ -39,6 +36,7 @@ module Wonga
       end
 
       def run(handler)
+        require 'daemons'
         Daemons.run_proc(config['daemon']['app_name'], config.daemon_config) do
           if config['sqs']
             run_without_daemon(handler)
@@ -49,6 +47,7 @@ module Wonga
       end
 
       def run_without_daemon(handler)
+        require 'wonga/daemon/subscriber'
         Wonga::Daemon::Subscriber.new(logger, error_publisher).subscribe(config['sqs']['queue_name'], handler)
       rescue => e
         logger.error e.inspect
@@ -60,10 +59,12 @@ module Wonga
       end
 
       def pantry_api_client
+        require 'wonga/daemon/pantry_api_client'
         Wonga::Daemon::PantryApiClient.new(config['pantry']['url'], config['pantry']['api_key'], Wonga::Daemon.logger, config['pantry']['timeout'])
       end
 
       def aws_resource
+        require 'wonga/daemon/aws_resource'
         Wonga::Daemon::AWSResource.new(error_publisher, logger)
       end
 
@@ -75,20 +76,27 @@ module Wonga
       end
 
       def initialize_logger
-        logger = get_logger(config['daemon']['log']) if config['daemon']['log']
+        require 'logger'
+        logger = if config['daemon']
+                   get_logger config['daemon']['log'], config['daemon']['app_name'] if config['daemon']['log']
+                 elsif config['scheduler']
+                   get_logger config['scheduler']['log'], config['scheduler']['app_name'] if config['scheduler']['log']
+                 end
+
         logger || Logger.new(STDOUT)
       end
 
-      def get_logger(config_file)
-        if config_file['logger'] == 'file'
-          logger = Logger.new(config_file['log_file'], config_file['shift_age'])
-        elsif config_file['logger'] == 'syslog'
-          facility = Syslog.const_get("LOG_#{config_file['log_facility'].upcase}")
-          logger = Syslogger.new(config['daemon']['app_name'], Syslog::LOG_PID | Syslog::LOG_CONS, facility)
+      def get_logger(config_section, app_name)
+        if config_section['logger'] == 'file'
+          logger = Logger.new(config_section['log_file'], config_section['shift_age'])
+        elsif config_section['logger'] == 'syslog'
+          require 'syslog/logger'
+          facility = Syslog.const_get("LOG_#{config_section['log_facility'].upcase}")
+          logger = Syslog::Logger.new(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, facility)
         end
 
         # available levels: DEBUG(0), INFO(1), WARN(2), ERROR(3), FATAL(4), UNKNOWN(5)
-        logger.level = Logger.const_get(config_file['level']) if config_file['level'] && logger
+        logger.level = Logger.const_get(config_section['level']) if config_section['level'] && logger
         logger
       end
     end
