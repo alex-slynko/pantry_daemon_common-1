@@ -90,9 +90,9 @@ module Wonga
         if config_section['logger'] == 'file'
           logger = Logger.new(config_section['log_file'], config_section['shift_age'])
         elsif config_section['logger'] == 'syslog'
-          require 'syslog/logger'
+          require 'syslog'
           facility = Syslog.const_get("LOG_#{config_section['log_facility'].upcase}")
-          logger = Syslog::Logger.new(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, facility)
+          logger = Syslog.open(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, facility)
         end
 
         # available levels: DEBUG(0), INFO(1), WARN(2), ERROR(3), FATAL(4), UNKNOWN(5)

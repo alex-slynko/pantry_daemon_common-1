@@ -5,12 +5,13 @@ require 'wonga/daemon/publisher'
 require 'wonga/daemon/subscriber'
 require 'rufus-scheduler'
 require 'daemons'
-require 'syslog/logger'
+require 'syslog'
 require 'logger'
 
 RSpec.describe Wonga::Daemon do
   before(:each) do
     allow(Wonga::Daemon).to receive(:config).and_return(config)
+    allow(Syslog).to receive(:open)
   end
 
   let(:publisher) { double }
@@ -106,7 +107,7 @@ RSpec.describe Wonga::Daemon do
         end
 
         it 'creates syslogger with custom logger level' do
-          expect(Syslog::Logger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
+          expect(Syslog).to receive(:open).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
           expect(logger).to receive(:level=).with(2)
           expect(Wonga::Daemon.logger).to eql(logger)
         end
@@ -121,7 +122,7 @@ RSpec.describe Wonga::Daemon do
         end
 
         it 'creates syslogger with custom logger level' do
-          expect(Syslog::Logger).to receive(:new).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
+          expect(Syslog).to receive(:open).with(app_name, Syslog::LOG_PID | Syslog::LOG_CONS, Syslog::LOG_DAEMON).and_return(logger)
           expect(Wonga::Daemon.logger).to eql(logger)
         end
       end
