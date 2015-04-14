@@ -9,10 +9,9 @@ module Wonga
         RestClient.log = logger
       end
 
-      def send_get_request(url, params = {})
-        response = @resource[url].get(prepared_params(params)).body
+      def send_get_request(url)
+        response = @resource[url].get.body
         RestClient.log.info "GET request to #{url} was sent successfully"
-        RestClient.log.debug params.to_s
         RestClient.log.debug response
         JSON.parse response
       end
@@ -20,19 +19,16 @@ module Wonga
       def send_put_request(url, params)
         @resource[url].put prepared_params(params)
         RestClient.log.info "PUT request to #{url} was sent successfully"
-        RestClient.log.debug params.to_s
       end
 
       def send_post_request(url, params)
         @resource[url].post prepared_params(params)
         RestClient.log.info "POST request to #{url} was sent successfully"
-        RestClient.log.debug params.to_s
       end
 
       def send_delete_request(url, params = nil)
         @resource[url].delete params: params
         RestClient.log.info "DELETE request to #{url} was sent successfully"
-        RestClient.log.debug params.to_s if params
       end
 
       private

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pantry_daemon_common (0.5.3)
+    pantry_daemon_common (0.5.4)
       aws-sdk (~> 2.0)
       daemons
       em-winrm (~> 0.6)

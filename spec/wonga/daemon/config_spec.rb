@@ -44,6 +44,16 @@ RSpec.describe Wonga::Daemon::Config do
     it 'uses part of config for current environment' do
       expect(subject['daemon']).to eq(daemons_config)
     end
+
+    context 'without AWS section' do
+      let(:config) { {} }
+
+      it 'skips AWS configuration' do
+        subject
+        expect(Aws.config[:region]).to be_nil
+        expect(Aws.config[:credentials]).to be_nil
+      end
+    end
   end
 
   context '#daemons_config' do

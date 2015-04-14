@@ -12,8 +12,8 @@ RSpec.describe Wonga::Daemon::PantryApiClient do
 
     it 'returns parsed result' do
       expect(logger).to receive(:info).with('GET request to aws was sent successfully')
-      expect_any_instance_of(RestClient::Resource).to receive(:get).with("{\"bootstrapped\":true}").and_return(result)
-      expect(subject.send_get_request('aws', bootstrapped: true)).to eq('test' => 'result')
+      expect_any_instance_of(RestClient::Resource).to receive(:get).and_return(result)
+      expect(subject.send_get_request('aws')).to eq('test' => 'result')
     end
   end
 

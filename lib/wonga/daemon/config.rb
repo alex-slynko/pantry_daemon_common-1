@@ -10,7 +10,7 @@ module Wonga
 
       def initialize(config)
         @config = config
-        configure_aws
+        configure_aws if @config['aws']
       end
 
       def [](value)
