@@ -1,5 +1,5 @@
 require 'json'
-require 'aws-sdk'
+require 'aws-sdk-core'
 require 'wonga/daemon'
 
 module Wonga
