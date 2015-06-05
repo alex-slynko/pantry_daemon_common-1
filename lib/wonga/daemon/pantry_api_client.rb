@@ -5,7 +5,7 @@ module Wonga
   module Daemon
     class PantryApiClient
       def initialize(url, api_key, logger, timeout = 300)
-        @resource = RestClient::Resource.new(url, timeout: timeout, headers: { accept: :json, content_type: :json, 'x-auth-token': api_key })
+        @resource = RestClient::Resource.new(url, timeout: timeout, headers: { :accept => :json, :content_type => :json, 'x-auth-token' => api_key })
         @logger = logger
       end
 

@@ -12,7 +12,6 @@ module Wonga
       def find_server_by_id(id)
         instance = @ec2_resource.instance id
         instance.load
-        instance
       rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
         nil
       end
