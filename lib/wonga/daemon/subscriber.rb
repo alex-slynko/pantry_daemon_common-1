@@ -1,6 +1,5 @@
 require 'json'
 require 'aws-sdk-core'
-require 'wonga/daemon'
 
 module Wonga
   module Daemon
@@ -33,7 +32,12 @@ module Wonga
         @error_publisher.publish(error: error_message)
         @logger.error error_message
         true
+      rescue RuntimeError
+        # standard error for fail
+        false
       rescue
+        error_message = "Error. Message body: #{message}. Backtrace: #{e.backtrace}."
+        @logger.error error_message
         false
       end
 

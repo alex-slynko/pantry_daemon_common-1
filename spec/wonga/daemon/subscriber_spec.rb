@@ -1,3 +1,4 @@
+require 'wonga/daemon/publisher'
 require 'wonga/daemon/subscriber'
 require 'logger'
 

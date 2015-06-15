@@ -55,6 +55,7 @@ RSpec.describe Wonga::Daemon::AWSResource do
 
     context 'machine terminated' do
       let(:state) { 'terminated' }
+
       it 'should return nil' do
         expect(subject.stop(message)).to be nil
       end
@@ -69,11 +70,12 @@ RSpec.describe Wonga::Daemon::AWSResource do
       let(:state) { 'running' }
 
       it 'raises exception' do
-        expect { subject.stop(message) }.to raise_error
+        expect { subject.stop(message) }.to raise_error RuntimeError
       end
 
       it 'stops machine' do
-        expect { subject.stop(message) }.to raise_error
+        expect_any_instance_of(Aws::EC2::Instance).to receive(:stop)
+        expect { subject.stop(message) }.to raise_error RuntimeError
       end
     end
   end
