@@ -80,10 +80,20 @@ RSpec.describe Wonga::Daemon::Subscriber do
   end
 
   context 'when processor raises exception' do
-    it 'keeps message' do
-      expect(processor).to receive(:handle_message).and_raise
-      expect(sqs_client).not_to receive(:delete_message)
-      run_cycle_one
+    context 'to rerun process' do
+      it 'keeps message' do
+        expect(processor).to receive(:handle_message).and_raise RuntimeError
+        expect(sqs_client).not_to receive(:delete_message)
+        run_cycle_one
+      end
+    end
+
+    context 'due to some error in processing' do
+      it 'keeps message' do
+        expect(processor).to receive(:handle_message).and_raise ZeroDivisionError
+        expect(sqs_client).not_to receive(:delete_message)
+        run_cycle_one
+      end
     end
   end
 

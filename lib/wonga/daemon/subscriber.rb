@@ -35,7 +35,7 @@ module Wonga
       rescue RuntimeError
         # standard error for fail
         false
-      rescue
+      rescue StandardError => e
         error_message = "Error. Message body: #{message}. Backtrace: #{e.backtrace}."
         @logger.error error_message
         false
