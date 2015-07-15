@@ -32,7 +32,11 @@ module Wonga
         @error_publisher.publish(error: error_message)
         @logger.error error_message
         true
-      rescue RuntimeError
+      rescue RuntimeError => e
+        unless e.instance_of? RuntimeError
+          error_message = "Error. Message body: #{message}. Backtrace: #{e.backtrace}."
+          @logger.error error_message
+        end
         # standard error for fail
         false
       rescue StandardError => e

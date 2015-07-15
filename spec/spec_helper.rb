@@ -37,5 +37,6 @@ RSpec.configure do |config|
   config.before(:each) do
     Aws.config[:credentials] = Aws::Credentials.new 'test', 'test'
     Aws.config[:region] = 'eu-west-1'
+    Aws.config[:stub_responses] = true
   end
 end
