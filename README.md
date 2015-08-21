@@ -20,7 +20,7 @@ require 'wonga/daemon/publisher' to use simple publisher.
 
 ## Contributing
 
-1. Clone the repository from [Gerrit](https://gerrit.example.com/#/admin/projects/cookbooks/wonga_cookbook)
+1. Clone the repository from [Gerrit](https://github.com/wongatech/pantry_daemon_common)
 2. Create a named feature branch with JIRA ticket (like `TD-1234_Adds_Feature_X`)
 3. Write your change
 4. Write [rspec](https://www.relishapp.com/rspec/rspec-core) tests for your change
