@@ -9,7 +9,7 @@ RSpec.describe Wonga::Daemon::WinRMRunner do
     let(:host) { 'some.host' }
 
     it 'adds host with default user name and key' do
-      expect(server).to receive(:use).with(host,  user: 'Administrator', password: 'TestPassword', basic_auth_only: true)
+      expect(server).to receive(:use).with(host,  user: 'Administrator', password: 'AdminPassword', basic_auth_only: true)
       subject.add_host(host)
     end
 

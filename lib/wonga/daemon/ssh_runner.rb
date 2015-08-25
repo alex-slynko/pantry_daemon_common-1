@@ -4,7 +4,7 @@ require 'net/ssh/multi'
 module Wonga
   module Daemon
     class SshRunner
-      def add_host(host, user = 'ubuntu', key = File.expand_path('~/.chef/aws-ssh-keypair.pem'))
+      def add_host(host, user = 'ubuntu', key = File.expand_path('~/.ssh/aws-ssh-keypair.pem'))
         session.use("#{user}@#{host}", keys: key, keys_only: true)
       end
 
